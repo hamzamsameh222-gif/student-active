@@ -1,0 +1,1468 @@
+<html lang="ar" dir="rtl"><script src="chrome-extension://eppiocemhmnlbhjplcgkofciiegomcon/libs/extend-native-history-api.js"></script><script src="chrome-extension://eppiocemhmnlbhjplcgkofciiegomcon/libs/requests.js"></script><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم الأدمن - نظام التصويت الجامعي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <head>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, #4a5d23, #6b7c32);
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-item {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            margin: 4px 8px;
+        }
+        
+        .sidebar-item:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(-4px);
+        }
+        
+        .sidebar-item.active {
+            background: rgba(255,255,255,0.2);
+            border-right: 4px solid #fbbf24;
+        }
+        
+        .content-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+        }
+        
+        .vote-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .vote-table th {
+            background: linear-gradient(135deg, #4a5d23, #6b7c32);
+            color: white;
+            padding: 16px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .vote-table td {
+            padding: 16px;
+            text-align: center;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .vote-table tr:hover {
+            background: #f9fafb;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4a5d23, #6b7c32);
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #6b7c32;
+            box-shadow: 0 0 0 3px rgba(107, 124, 50, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4a5d23, #6b7c32);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(74, 93, 35, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        .page-section {
+            display: none;
+        }
+        
+        .page-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 50;
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-right: 0 !important;
+            }
+        }
+    </style>
+ 
+
+      </head>
+    <body class="bg-gray-50 min-h-full" bis_status="ok" bis_frame_id="1456" __processed_5a428eb2-83fc-44e5-8c16-4b87f703cdda__="true">
+   <!--////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        <div id="addSubjectModal" class="fixed inset-0 modal-overlay items-center justify-center z-50 flex">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-white">📚 إضافة مادة دراسية جديدة</h3>
+                <button id="closeModal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl">✕</button>
+            </div>
+            
+            <form class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">اسم المادة</label>
+                        <input type="text" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="مثال: برمجة الويب المتقدمة">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">رمز المادة</label>
+                        <input type="text" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="مثال: CS401">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">وصف المادة</label>
+                    <textarea rows="4" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" placeholder="اكتب وصفاً مفصلاً للمادة ومحتواها..."></textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">الكلية</label>
+                        <select class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option>علوم الحاسوب</option>
+                            <option>الهندسة</option>
+                            <option>إدارة الأعمال</option>
+                            <option>الطب</option>
+                            <option>الحقوق</option>
+                            <option>التربية</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">اسم الدكتور</label>
+                        <input type="text" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="د. أحمد محمد">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">عدد الساعات</label>
+                        <select class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option>3 ساعات</option>
+                            <option>2 ساعة</option>
+                            <option>4 ساعات</option>
+                            <option>1 ساعة</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">تاريخ بدء التصويت</label>
+                        <input type="datetime-local" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">تاريخ انتهاء التصويت</label>
+                        <input type="datetime-local" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">الفئات المستهدفة</label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="mr-2 text-sm">السنة الأولى</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="mr-2 text-sm">السنة الثانية</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="mr-2 text-sm">السنة الثالثة</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="mr-2 text-sm">السنة الرابعة</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="flex gap-4 pt-4">
+                    <button type="submit" class="flex-1 bg-gradient-to-r from-green-600 to-blue-600 text-white py-3 rounded-xl hover:from-green-700 hover:to-blue-700 transition-all font-semibold">
+                        ✅ إضافة المادة
+                    </button>
+                    <button type="button" id="cancelModal" class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-3 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-semibold">
+                        إلغاء
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>-->
+<!--////////////////////////////////////////////////////////////////////////////////////////////////////////////-->
+
+
+    <!-- Header -->
+    <header class="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-40">
+        <div class="flex justify-between items-center h-16 px-6">
+            <div class="flex items-center">
+                <button id="mobileMenuBtn" class="md:hidden p-2 text-gray-600 hover:text-gray-800">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                <div class="flex items-center mr-4">
+                    <div class="w-10 h-10 bg-gradient-to-r from-green-700 to-yellow-600 rounded-xl flex items-center justify-center ml-3">
+                        <span class="text-white font-bold text-lg">🗳️</span>
+                    </div>
+                    <h1 class="text-xl font-bold text-gray-800">لوحة التحكم</h1>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4 space-x-reverse">
+                <div class="flex items-center">
+                    <div class="h-10 w-10 rounded-full bg-gradient-to-r from-green-600 to-yellow-500 flex items-center justify-center">
+                        <span class="text-sm font-bold text-white">أد</span>
+                    </div>
+                    <span class="mr-3 text-gray-700 font-semibold">الأدمن الرئيسي</span>
+                </div>
+                <button class="bg-red-100 text-red-600 px-4 py-2 rounded-lg hover:bg-red-200 transition-colors font-semibold">
+                    🚪 تسجيل خروج
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside class="sidebar w-64 min-h-screen text-white mobile-open" id="sidebar">
+            <div class="p-6">
+                <nav class="space-y-2">
+                    <a href="#" class="sidebar-item active flex items-center p-3 text-white hover:text-yellow-200" data-page="dashboard">
+                        <span class="text-xl ml-3">🏠</span>
+                        <span class="font-semibold">الصفحة الرئيسية</span>
+                    </a>
+                    <a href="#" class="sidebar-item flex items-center p-3 text-white hover:text-yellow-200" data-page="results">
+                        <span class="text-xl ml-3">📊</span>
+                        <span class="font-semibold">نتائج التصويتات</span>
+                    </a>
+                    <a href="#" class="sidebar-item flex items-center p-3 text-white hover:text-yellow-200" data-page="add-vote">
+                        <span class="text-xl ml-3">📝</span>
+                        <span class="font-semibold">إضافة تصويت جديد</span>
+                    </a>
+                    <a href="#" class="sidebar-item flex items-center p-3 text-white hover:text-yellow-200" data-page="voters">
+                        <span class="text-xl ml-3">👥</span>
+                        <span class="font-semibold">قائمة المصوتين</span>
+                    </a>
+                    <a href="#" class="sidebar-item flex items-center p-3 text-white hover:text-yellow-200" data-page="settings">
+                        <span class="text-xl ml-3">⚙️</span>
+                        <span class="font-semibold">الإعدادات</span>
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 mr-64 md:mr-0" id="mainContent">
+            <!-- Dashboard Page -->
+            <div id="dashboard" class="page-section active p-6">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">🏠 الصفحة الرئيسية</h2>
+                    <p class="text-gray-600">ملخص سريع عن حالة النظام</p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="stats-card">
+                        <div class="text-4xl mb-3">🗳️</div>
+                        <div class="text-3xl font-bold text-green-700 mb-1">5</div>
+                        <div class="text-gray-600 font-semibold">التصويتات الحالية</div>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <div class="text-4xl mb-3">👥</div>
+                        <div class="text-3xl font-bold text-blue-700 mb-1">1,247</div>
+                        <div class="text-gray-600 font-semibold">الطلاب المصوتين</div>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <div class="text-4xl mb-3">📚</div>
+                        <div class="text-3xl font-bold text-purple-700 mb-1">الذكاء الاصطناعي</div>
+                        <div class="text-gray-600 font-semibold">أكثر مادة تصويتاً</div>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <div class="text-4xl mb-3">⏰</div>
+                        <div class="text-3xl font-bold text-orange-700 mb-1">منذ ساعتين</div>
+                        <div class="text-gray-600 font-semibold">آخر تصويت مضاف</div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="content-card">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">📈 النشاط الأخير</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center p-4 bg-green-50 rounded-lg">
+                            <div class="text-2xl ml-4">✅</div>
+                            <div>
+                                <div class="font-semibold text-gray-800">تم إضافة تصويت جديد</div>
+                                <div class="text-sm text-gray-600">تصويت لمواد الفصل القادم - منذ ساعتين</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center p-4 bg-blue-50 rounded-lg">
+                            <div class="text-2xl ml-4">🗳️</div>
+                            <div>
+                                <div class="font-semibold text-gray-800">صوت جديد على مادة الذكاء الاصطناعي</div>
+                                <div class="text-sm text-gray-600">من الطالب أحمد محمد - منذ 15 دقيقة</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center p-4 bg-yellow-50 rounded-lg">
+                            <div class="text-2xl ml-4">⚠️</div>
+                            <div>
+                                <div class="font-semibold text-gray-800">تصويت ينتهي قريباً</div>
+                                <div class="text-sm text-gray-600">تصويت مواد الفصل الصيفي - ينتهي خلال يومين</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Page -->
+            <div id="results" class="page-section p-6">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">📊 نتائج التصويتات</h2>
+                    <p class="text-gray-600">عرض تفصيلي لنتائج جميع التصويتات</p>
+                </div>
+
+                <!-- Results Table -->
+                <div class="content-card">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">نتائج تصويت مواد الفصل القادم</h3>
+                    
+                    <table class="vote-table" id="resultsTable">
+                        <thead>
+                            <tr>
+                                <th>المادة</th>
+                                <th>عدد الأصوات</th>
+                                <th>النسبة %</th>
+                                <th>التقدم</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-semibold">الذكاء الاصطناعي</td>
+                                <td class="text-green-600 font-bold">587</td>
+                                <td class="text-green-600 font-bold">47%</td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 47%"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                     <button class="btn-secondary text-sm">عرض التفاصيل</button>
+                                    <button class="btn-secondary text-sm bg-red-100">حذف</button>
+                                    <button class="btn-secondary text-sm bg-blue-100">تعديل</button>
+                                    <button class="btn-secondary text-sm bg-orange-100">اخفاء</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">أمن سيبراني</td>
+                                <td class="text-blue-600 font-bold">376</td>
+                                <td class="text-blue-600 font-bold">30%</td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 30%"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                   <button class="btn-secondary text-sm">عرض التفاصيل</button>
+                                    <button class="btn-secondary text-sm bg-red-100">حذف</button>
+                                    <button class="btn-secondary text-sm bg-blue-100">تعديل</button>
+                                    <button class="btn-secondary text-sm bg-orange-100">اخفاء</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">برمجة ويب</td>
+                                <td class="text-purple-600 font-bold">284</td>
+                                <td class="text-purple-600 font-bold">23%</td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 23%"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn-secondary text-sm">عرض التفاصيل</button>
+                                    <button class="btn-secondary text-sm bg-red-100">حذف</button>
+                                    <button class="btn-secondary text-sm bg-blue-100">تعديل</button>
+                                    <button class="btn-secondary text-sm bg-orange-100">اخفاء</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Chart -->
+                <div class="content-card">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">📈 الرسم البياني</h3>
+                    <div class="chart-container">
+                        <canvas id="votesChart" height="0" style="display: block; box-sizing: border-box; height: 0px; width: 0px;" width="0"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Vote Page -->
+            <div id="add-vote" class="page-section p-6">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">📝 إضافة تصويت جديد</h2>
+                    <p class="text-gray-600">إنشاء تصويت جديد للطلاب</p>
+                </div>
+
+                <div class="content-card max-w-4xl">
+                    <form id="addVoteForm" class="space-y-6">
+                        <div>
+                            <label for="voteName" class="block text-sm font-semibold text-gray-700 mb-2">🔹 اسم التصويت</label>
+                            <input type="text" id="voteName" class="form-input" placeholder="مثال: تصويت لمادة الفصل القادم" required="">
+                        </div>
+
+                        <div>
+                            <label for="voteDescription" class="block text-sm font-semibold text-gray-700 mb-2">🔹 وصف التصويت</label>
+                            <textarea id="voteDescription" rows="4" class="form-input resize-none" placeholder="اكتب وصفاً بسيطاً للتصويت..." required=""></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-4">🔹 قائمة التخصصات</label>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <select id="namesubject" class="form-input" required="">
+                                        <option value="">اختر التخصص</option>
+                                        <option value="الذكاء الاصطناعي">الذكاء الاصطناعي</option>
+                                        <option value="أمن سيبراني">أمن سيبراني</option>
+                                        <option value="نظم معلومات ادارية">نظم معلومات ادارية</option>
+                                        <option value="علوم الحاسوب">علوم الحاسوب</option>
+                                        <option value="نظم معلومات محاسبية">نظم معلومات محاسبية</option>
+                                        <option value="تطوير تطبيقات اجهزة ذكية">تطوير تطبيقات اجهزة ذكية </option>
+                                    </select>
+
+                            </div>
+                        </div>
+
+                        <!-- تفاصيل المادة -->
+                        <div class="bg-gray-50 p-6 rounded-xl">
+                            <h4 class="text-lg font-bold text-gray-800 mb-4">📋 تفاصيل المادة</h4>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="teacherName" class="block text-sm font-semibold text-gray-700 mb-2">👨‍🏫 اسم المدرس</label>
+                                    <input type="text" id="teacherName" class="form-input" placeholder="د. أحمد محمد علي" required="">
+                                </div>
+                                
+                                <div>
+                                    <label for="creditHours" class="block text-sm font-semibold text-gray-700 mb-2">⏰ عدد الساعات</label>
+                                    <select id="creditHours" class="form-input" required="">
+                                        <option value="">اختر عدد الساعات</option>
+                                        <option value="1">1 ساعة</option>
+                                        <option value="2">2 ساعة</option>
+                                        <option value="3">3 ساعات</option>
+                                        <option value="4">4 ساعات</option>
+                                        <option value="5">5 ساعات</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="suggestedTime" class="block text-sm font-semibold text-gray-700 mb-2">🕐 الموعد المقترح</label>
+                                    <input type="text" id="suggestedTime" class="form-input" placeholder="الأحد والثلاثاء 10:00-11:30" required="">
+                                </div>
+                                
+                                <div>
+                                    <label for="classroom" class="block text-sm font-semibold text-gray-700 mb-2">🏛️ القاعة المقترحة</label>
+                                    <input type="text" id="classroom" class="form-input" placeholder="قاعة 201 - مبنى علوم الحاسوب" required="">
+                                </div>
+                                <div class="mt-4">
+                                    <label for="prerequisite" class="block text-sm font-semibold text-gray-700 mb-2">📚 المتطلب السابق</label>
+                                    <input type="text" id="prerequisite" class="form-input" placeholder="مثال: مقدمة في البرمجة، أساسيات الحاسوب">
+                                </div>
+                                <div class="mt-4">
+                                    <label for="numbersub" class="block text-sm font-semibold text-gray-700 mb-2">رقم المادة </label>
+                                    <input type="text" id="numbersub" class="form-input" placeholder="500780">
+                                </div>
+                            </div>
+                            
+                        </div>
+
+                      <!--  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="startDate" class="block text-sm font-semibold text-gray-700 mb-2">🔹 تاريخ البدء</label>
+                                <input type="datetime-local" id="startDate" class="form-input" required="">
+                            </div>
+                            <div>
+                                <label for="endDate" class="block text-sm font-semibold text-gray-700 mb-2">🔹 تاريخ الانتهاء</label>
+                                <input type="datetime-local" id="endDate" class="form-input" required="">
+                            </div>
+                        </div>-->
+
+                        <div class="flex gap-4 pt-6">
+                            <button type="submit" class="btn-primary flex-1">
+                                🚀 نشر التصويت
+                            </button>
+                            <button type="button" class="btn-secondary flex-1">
+                                إلغاء
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Voters Page -->
+            <div id="voters" class="page-section p-6">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">👥 قائمة المصوتين</h2>
+                    <p class="text-gray-600">عرض جميع الطلاب الذين شاركوا في التصويت</p>
+                </div>
+
+                <div class="content-card">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">قائمة المصوتين الحالية</h3>
+                        <div class="flex gap-3">
+                            <input type="text" placeholder="البحث بالاسم أو الرقم الجامعي..." class="form-input w-64">
+                            <button class="btn-secondary">🔍 بحث</button>
+                        </div>
+                    </div>
+
+                    <table class="vote-table">
+                        <thead>
+                            <tr>
+                                <th>الاسم</th>
+                                <th>الرقم الجامعي</th>
+                                <th>المادة المصوّت لها</th>
+                                <th>وقت التصويت</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="votes-body">
+                            <tr>
+                                <td class="font-semibold">أحمد محمد علي</td>
+                                <td>2021001234</td>
+                                <td class="text-green-600">الذكاء الاصطناعي</td>
+                                <td>2024-11-20 14:30</td>
+                                <td>
+                                    <button class="btn-secondary text-sm">عرض التفاصيل</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">فاطمة أحمد</td>
+                                <td>2021001235</td>
+                                <td class="text-blue-600">أمن سيبراني</td>
+                                <td>2024-11-20 13:45</td>
+                                <td>
+                                    <button class="btn-secondary text-sm">عرض التفاصيل</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">محمد سارة</td>
+                                <td>2021001236</td>
+                                <td class="text-purple-600">برمجة ويب</td>
+                                <td>2024-11-20 12:20</td>
+                                <td>
+                                    <button class="btn-secondary text-sm">عرض التفاصيل</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">سارة محمود</td>
+                                <td>2021001237</td>
+                                <td class="text-green-600">الذكاء الاصطناعي</td>
+                                <td>2024-11-20 11:15</td>
+                                <td>
+                                    <button class="btn-secondary text-sm">عرض التفاصيل</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">علي حسن</td>
+                                <td>2021001238</td>
+                                <td class="text-blue-600">أمن سيبراني</td>
+                                <td>2024-11-20 10:30</td>
+                                <td>
+                                    <button class="btn-secondary text-sm">عرض التفاصيل</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="flex justify-center mt-6">
+                        <button class="btn-secondary">📄 عرض المزيد</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page --><!--هوون شلما حرف الاس ن السيتينج -->
+            <div id="setting" class="page-section p-6">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">⚙️ الإعدادات</h2>
+                    <p class="text-gray-600">إعدادات النظام والتحكم العام</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="content-card">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">🔧 إعدادات عامة</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">اسم النظام</label>
+                                <input type="text" class="form-input" value="نظام التصويت الجامعي">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">وصف النظام</label>
+                                <textarea rows="3" class="form-input resize-none">نظام تصويت إلكتروني للطلاب لاختيار المواد الدراسية</textarea>
+                            </div>
+                            <button class="btn-primary">💾 حفظ التغييرات</button>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">👤 إعدادات الحساب</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">اسم المستخدم</label>
+                                <input type="text" class="form-input" value="admin">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">البريد الإلكتروني</label>
+                                <input type="email" class="form-input" value="admin@university.edu">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">كلمة المرور الجديدة</label>
+                                <input type="password" class="form-input" placeholder="اتركها فارغة إذا لم ترد التغيير">
+                            </div>
+                            <button class="btn-primary">🔐 تحديث الحساب</button>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">📊 إعدادات التصويت</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="font-semibold">السماح بالتصويت المتعدد</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="font-semibold">إظهار النتائج فوراً</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" checked="">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                                </label>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">الحد الأقصى للتصويتات اليومية</label>
+                                <input type="number" class="form-input" value="1" min="1" max="10">
+                            </div>
+                            <button class="btn-primary">⚙️ حفظ الإعدادات</button>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">🗂️ إدارة البيانات</h3>
+                        <div class="space-y-4">
+                            <button class="btn-secondary w-full">📤 تصدير البيانات</button>
+                            <button class="btn-secondary w-full">📥 استيراد البيانات</button>
+                            <button class="bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition-colors w-full font-semibold">
+                                🗑️ مسح جميع البيانات
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="addSubjectModal" class="fixed inset-0 modal-overlay items-center justify-center z-50 flex hidden">
+        <div class=" dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-white"> تعديل المادة </h3>
+                <button  onclick="closeModalFunc()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl ">✕</button>
+            </div>
+            
+            <form class="space-y-6">
+                <div class="block grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">اسم المادة</label>
+                        <input id="modalName" type="text" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="مثال: برمجة الويب المتقدمة">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">وصف المادة</label>
+                    <textarea id="modalDescription" rows="4" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" placeholder="اكتب وصفاً مفصلاً للمادة ومحتواها..."></textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">التخصص</label>
+                        <select id="sub" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option>MIS</option>
+                            <option>CIS</option>
+                            <option>CY</option>
+                            <option>CIS</option>
+                            <option>الحقوق</option>
+                            <option>التربية</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">اسم الدكتور</label>
+                        <input id="modalTeacher" type="text" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="د. أحمد محمد">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">عدد الساعات</label>
+                        <select id="modalHours" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option>3 ساعات</option>
+                            <option>2 ساعة</option>
+                            <option>4 ساعات</option>
+                            <option>1 ساعة</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                   
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">القاعة</label>
+                        <input id="modalRoom" type="text" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="د. أحمد محمد">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">متطلب سابق</label>
+                        <input id="modalPrerequisite" type="text" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="د. أحمد محمد">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">الموعد</label>
+                        <input id="modalTime" type="text" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="د. أحمد محمد">
+                    </div>
+                   
+                </div>
+                
+                
+                
+                <div class="flex gap-4 pt-4">
+                    <button type="button"  onclick="BTNsave()" class="BTNsave flex-1 bg-gradient-to-r from-green-600 to-blue-600 text-white py-3 rounded-xl hover:from-green-700 hover:to-blue-700 transition-all font-semibold">
+                        ✅ حفظ
+                    </button>
+                    <button type="button"  onclick="closeModalFunc()" class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-3 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-semibold">
+                        إلغاء
+                    </button>
+                    
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+
+
+
+
+async function loadVotes() {
+    try {
+        const response = await fetch('http://localhost:5000/votes'); // endpoint تبعك
+        const votes = await response.json();
+        const tableBody = document.getElementById('votes-body');
+        tableBody.innerHTML = ''; // مسح القديم
+
+
+        votes.forEach(vote => {
+            const row = `
+                <tr>
+                    <td class="font-semibold">${vote.namestudent}</td>
+                    <td>${vote.student_id}</td>
+                    <td class="text-green-600">${vote.namesubject}</td>
+                    <td>${vote.voted_at}</td>
+                    <td>
+                        <button 
+                        onclick="deleteVotetable(${vote.id})"
+                        class="btn-secondary text-sm bg-red-100
+                         "> حذف التصويت 
+                         </button>
+
+                        
+                    </td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+
+    } catch (err) {
+        console.error("Error loading votes:", err);
+    }
+}
+
+// 🔥 تشغيل الفانكشن مباشرة عند تحميل الصفحة
+window.onload = loadVotes;
+
+
+
+
+function closeModalFunc() {
+  const addSubjectModal = document.getElementById("addSubjectModal");
+
+  // نخفي المودال بالقوة
+  addSubjectModal.style.display = "none";
+  addSubjectModal.classList.add("hidden");
+  addSubjectModal.classList.remove("flex");
+
+  // نرجّع التمرير للصفحة
+  document.body.style.overflow = "auto";
+}
+
+
+window.currentEditId = null;
+function updatecard(iid){
+    window.currentEditId = iid; 
+      fetch("http://localhost:5000/getVotes")
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        if (!data.success) { throw new Error("فشل جلب التصويتات"); }
+        const votes = data.votes;
+        const vote = votes.find(v => String(v.id) === String(iid));
+         if (!vote) {
+        console.error("❌ التصويت غير موجود للـ id:", iid);
+        return;
+      }
+        const modal = document.getElementById("addSubjectModal");
+        modal.style.display = "flex";
+        document.getElementById("modalName").value = vote.name || "";
+        document.getElementById("modalDescription").value = vote.description || "";
+        document.getElementById("modalTeacher").value = vote.teacher || "";
+        document.getElementById("modalHours").value = vote.hours || "";
+        document.getElementById("modalRoom").value = vote.room || "";
+        document.getElementById("modalPrerequisite").value = vote.prerequisite || "";
+        document.getElementById("modalTime").value = vote.time || "";
+        modal.setAttribute("data-edit-id", iid);        
+       
+  /*      const closeModalBtn = document.getElementById("closeModal");
+        const editModal = document.getElementById("addSubjectModal");
+        closeModalBtn.addEventListener("click", () => {
+        editModal.classList.add("hidden"); // يخفي المودال
+       
+    });
+*/
+      console.log("🟢 تم فتح المودال و تخزين ID:", iid);  
+    }else {
+        console.error("❌ فشل في جلب البيانات من السيرفر");}
+    })
+     .catch(err => console.error("⚠️ خطأ في الاتصال بالسيرفر:", err));
+  
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("BTNsave");
+  if (btn) btn.addEventListener("click", BTNsave);
+});
+
+ async function BTNsave(){
+      const modal = document.getElementById("addSubjectModal"); 
+      const idFromModal = modal.getAttribute("data-edit-id"); 
+      const id = idFromModal ?? window.currentEditId;
+      console.log("🆔 ID عند الحفظ:", id);
+       if (!id && id !== 0) {
+            showMessage("❌ خطأ: لا يوجد ID للتعديل", "error");
+            return;
+        }
+      
+        const updatedVote = {
+        name: document.getElementById("modalName").value.trim(),
+        description: document.getElementById("modalDescription").value.trim(),
+        teacher: document.getElementById("modalTeacher").value.trim(),
+        hours: parseInt(document.getElementById("modalHours").value.trim()) || null,
+        room: document.getElementById("modalRoom").value.trim(),
+        prerequisite: document.getElementById("modalPrerequisite").value.trim(),
+        time: document.getElementById("modalTime").value.trim(),};
+
+  try {
+
+    const numericId = Number(id);
+    const response = await fetch(`http://localhost:5000/updateVote/${numericId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedVote),
+    })
+    const data = await response.json();
+    console.log("⚙️ رد السيرفر على التعديل:", data);
+
+
+    if (data.success) {
+      showMessage("✅ تم تعديل التصويت بنجاح", "success");
+      modal.style.display = "none";
+         // إعادة تحميل البيانات من السيرفر بدل localStorage
+       const res = await fetch("http://localhost:5000/getVotes")
+       const newData = await res.json();
+        if (newData.success) displayVotes(newData.votes);
+    } else {
+      showMessage("❌ فشل في تعديل التصويت: " + (data.message || ""), "error");
+    }
+    } catch (err) {
+    console.error("⚠️ خطأ أثناء حفظ التعديل:", err);
+    showMessage("⚠️ حدث خطأ أثناء الاتصال بالخادم", "error");
+  }
+}
+
+
+
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        /*localStorage.clear();*/
+        updateResultsTable();
+    });
+
+
+document.getElementById('addVoteForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  fetch("http://localhost:5000/addVote", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    numbersub:document.getElementById("numbersub").value,
+    namesubject:document.getElementById("namesubject").value,
+    name: document.getElementById("voteName").value,
+    description: document.getElementById("voteDescription").value,
+    teacher: document.getElementById("teacherName").value,
+    hours: document.getElementById("creditHours").value,
+    time: document.getElementById("suggestedTime").value,
+    room: document.getElementById("classroom").value,
+    prerequisite: document.getElementById("prerequisite").value,
+    student_id: JSON.parse(localStorage.getItem("student")).student_id
+  })
+})
+.then(res => res.json())
+.then(data => {
+  if (data.success) {
+    showMessage("🚀 تم نشر التصويت بنجاح وحُفظ في قاعدة البيانات!", "success");
+    updateResultsTable();
+    document.getElementById('addVoteForm').reset();
+  } else {
+    showMessage("⚠️ فشل حفظ التصويت في قاعدة البيانات.", "error");
+  }
+})
+.catch(err => console.error("❌ خطأ أثناء إرسال التصويت:", err));
+
+/*showMessage("🚀 تم نشر التصويت بنجاح!", "success");*/
+  updateResultsTable()
+  this.reset();
+});
+
+
+        
+
+// هاي عشان أزرار "عرض التفاصيل" تشتغل بعد ما نرندر الكروت
+function attachDetailsToggle() {
+  document.querySelectorAll(".details-toggle").forEach(button => {
+    button.addEventListener("click", () => {
+      const currentDetails = button.closest(".course-card").querySelector(".course-details");
+      const icon = button.querySelector(".rotate-icon");
+
+      const isHidden = currentDetails.classList.contains("hidden");
+      document.querySelectorAll(".course-details").forEach(d => d.classList.add("hidden"));
+      document.querySelectorAll(".rotate-icon").forEach(i => i.classList.remove("rotate-180"));
+
+      if (isHidden) {
+        currentDetails.classList.remove("hidden");
+        icon.classList.add("rotate-180");
+      }
+    });
+  });
+}
+
+
+
+
+function updateResultsTable() {
+  const tableBody = document.querySelector("#resultsTable tbody");
+ 
+  /*const votes = JSON.parse(localStorage.getItem("votes")) || [];*/
+ 
+ fetch("http://localhost:5000/getVotes")
+  .then(res => res.json())
+  .then(data => {
+     if (data.success) {
+      const votes = data.votes; // ⬅️ البيانات من السيرفر
+  tableBody.innerHTML = "";
+    votes.forEach(vote => {
+    const row = document.createElement("tr");
+    row.dataset.id = vote.id;
+    row.innerHTML = `
+      <td class="font-semibold">${vote.name}</td>
+      <td class="text-green-600 font-bold">${vote.votes}</td>
+      <td class="text-green-600 font-bold">${vote.percent}%</td>
+      <td>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${vote.percent}%"></div>
+        </div>
+      </td>
+      <td>
+        <button onclick="showVoteDetails(${vote.id})"showVoteDetails(id) class="btn-secondary text-sm details-btn" data-id="${vote.id}">تفاصيل</button>
+        <button onclick="deleteVote(${vote.id})" class="btn-secondary text-sm bg-red-100 btn-delete" data-id="${vote.id}">حذف</button>
+        <button onclick="updatecard(${vote.id})" class="btn-secondary text-sm bg-blue-100 edit-btn" data-id="${vote.id}">تعديل</button>
+       <button  onclick="handleHideToggle(${vote.id})"  class="btn-secondary text-sm bg-orange-100 btn-hide" data-id="${vote.id}">${vote.hidden ? "إظهار" : "إخفاء"}</button>
+      </td>
+    `;
+    tableBody.appendChild(row);
+  });
+  document.querySelectorAll(".btn-delete").forEach(btn => btn.addEventListener("click", handleDelete));
+  document.querySelectorAll(".btn-hide").forEach(btn => btn.addEventListener("click", handleHideToggle));
+        }     
+    });     
+}
+
+async function handleHideToggle(e) {
+   
+  const id = e;
+  try {
+      // 🔹 نرسل طلب للسيرفر لتبديل حالة الإخفاء
+      const response = await fetch(`http://localhost:5000/toggleHide/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showMessage(data.message, "success");
+            
+      // إعادة تحميل القائمة بعد التحديث
+      fetch("http://localhost:5000/getVotes")
+      .then(res => res.json())
+      .then(data => {
+          if (data.success) displayVotes(data.votes);
+          alert('9999999999999999');
+        });
+    } else {
+      showMessage("❌ فشل في تحديث حالة الإخفاء", "error");
+    }
+  } catch (err) {
+    console.error("⚠️ خطأ أثناء الاتصال بالسيرفر:", err);
+    showMessage("⚠️ حدث خطأ أثناء الاتصال بالخادم", "error");
+  }
+}
+
+
+
+
+function deleteVote(id) {
+  if (!confirm("هل أنت متأكد من حذف هذا التصويت؟")) return;
+
+  fetch(`http://localhost:5000/deleteVote/${id}`, {
+    method: "DELETE"
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        showMessage(data.message, "success");
+        updateResultsTable(); // إعادة تحميل الجدول بعد الحذف
+      } else {
+        showMessage("⚠️ حدث خطأ أثناء الحذف", "error");
+      }
+    })
+    .catch(err => {
+      console.error("❌ خطأ أثناء حذف التصويت:", err);
+      showMessage("❌ لم يتم الاتصال بالسيرفر", "error");
+    });
+}
+
+
+
+
+
+
+function showVoteDetails(id){
+    fetch("http://localhost:5000/getVotes")
+  .then(res => res.json())
+  .then(data => {
+      if (data.success) {
+          if (!data.success) { throw new Error("فشل جلب التصويتات"); }
+          const votes = data.votes;
+          const vote = votes.find(v => String(v.id) === String(id));
+         if (!vote) {
+        console.error("❌ التصويت غير موجود للـ id:", iid);
+        return;
+    }
+            showMessage(
+        "📘 اسم التصويت:" + vote.name +" || "
+        +"👩‍🏫 المدرّس:" +vote.teacher +" || "
+        +"🕒 الوقت:" + vote.time +" || "
+        +"🏫 القاعة:"+ vote.room +" || "
+        +"📋 الوصف:" +vote.description +" || "
+        , "success");
+        }
+    })
+   
+    };
+
+
+
+
+
+
+
+
+
+document.addEventListener("click", function(e) {
+    if (e.target.classList.contains("details-btn")) {
+      const id = e.target.getAttribute("data-id");
+      showVoteDetails(id);
+    }
+});
+      /*
+  if (e.target.classList.contains("delete-btn")) {
+    const id = e.target.getAttribute("data-id");
+    deleteVote(id);
+  }
+
+  if (e.target.classList.contains("hide-btn")) {
+      const id = e.target.getAttribute("data-id");
+    showMessage((id), "info");
+    hideVote(id);
+  }
+
+  if (e.target.classList.contains("edit-btn")) {
+    const id = e.target.getAttribute("data-id");
+    editVote(id);
+  }
+
+});*/
+
+
+
+
+
+        // Navigation functionality
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        const pageSection = document.querySelectorAll('.page-section');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+
+        // Handle navigation
+        sidebarItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all items
+                sidebarItems.forEach(i => i.classList.remove('active'));
+                pageSection.forEach(p => p.classList.remove('active'));
+                
+                // Add active class to clicked item
+                this.classList.add('active');
+                
+                // Show corresponding page
+                const targetPage = this.getAttribute('data-page');
+                document.getElementById(targetPage).classList.add('active');
+                
+                // Close mobile menu
+                sidebar.classList.remove('mobile-open');
+            });
+        });
+
+
+
+        // Mobile menu toggle
+        mobileMenuBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('mobile-open');
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!sidebar.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                sidebar.classList.remove('mobile-open');
+            }
+        });
+
+
+        // Show message function
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-xl shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
+            }`;
+            messageDiv.textContent = message;
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => messageDiv.remove(), 4000);
+        }
+        
+
+        // Initialize Chart
+        const ctx = document.getElementById('votesChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['الذكاء الاصطناعي', 'أمن سيبراني', 'برمجة ويب'],
+                    datasets: [{
+                        data: [587, 376, 284],
+                        backgroundColor: [
+                            '#4a5d23',
+                            '#6b7c32',
+                            '#8b9f41'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 14,
+                                    family: 'Arial'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+
+        // Logout functionality
+        document.querySelector('button:contains("تسجيل خروج")') || 
+        Array.from(document.querySelectorAll('button')).find(btn => btn.textContent.includes('تسجيل خروج'))?.addEventListener('click', function() {
+            if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+                showMessage('تم تسجيل الخروج بنجاح', 'success');
+                setTimeout(() => {
+                    window.location.href = '#';
+                }, 2000);
+            }
+        });
+
+
+
+
+        async function deleteVotetable(id) {
+    if (!confirm("هل أنت متأكد من حذف هذا التصويت؟")) return;
+
+    const res = await fetch(`http://localhost:5000/delvote/${id}`, {
+        method: "DELETE"
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        alert("تم حذف التصويت ✔");
+        window.onload = loadVotes;
+    } else {
+        alert("حدث خطأ أثناء الحذف");
+    }
+}
+
+
+
+     
+      /*
+document.addEventListener("click", function(e) {
+  if (e.target.classList.contains("edit-btn")) {
+    const id = e.target.getAttribute("data-id");
+    
+    // نجيب البيانات من localStorage
+    const votes = JSON.parse(localStorage.getItem("votes")) || [];
+    const vote = votes.find(v => v.id == id);
+    if (!vote) return;
+
+    // نفتح المودال
+    const modal = document.getElementById("addSubjectModal");
+    modal.style.display = "flex";
+
+    // نعبي الفورم بالقيم القديمة
+    document.querySelector("#addSubjectModal input[placeholder='مثال: برمجة الويب المتقدمة']").value = vote.name;
+    document.querySelector("#addSubjectModal input[placeholder='مثال: CS401']").value = vote.code || "";
+    document.querySelector("#addSubjectModal textarea").value = vote.description;
+    document.querySelector("#addSubjectModal input[placeholder='د. أحمد محمد']").value = vote.teacher;
+    document.querySelector("#addSubjectModal select:nth-of-type(2)").value = vote.hours;
+    document.querySelector("#addSubjectModal input[type='datetime-local']:nth-of-type(1)").value = vote.startDate || "";
+    document.querySelector("#addSubjectModal input[type='datetime-local']:nth-of-type(2)").value = vote.endDate || "";
+
+    // نخزن الـ id عشان نعرف احنا بنعدل على مين
+    modal.setAttribute("data-edit-id", id);
+  }
+});
+
+*/
+
+    </script>
+
+</body>
+</html>
+
+
+
+
+
+<!--
+CREATE DATABASE university_db;
+\c university_db;
+
+
+CREATE TABLE programs (
+  program_id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL
+);
+
+
+CREATE TABLE courses (
+  course_code VARCHAR(20) PRIMARY KEY,
+  title VARCHAR(200),
+  credits INT
+);
+
+
+CREATE TABLE students (
+  student_id SERIAL PRIMARY KEY,
+  first_name VARCHAR(100),
+  email VARCHAR(100) UNIQUE,
+  password VARCHAR(100),
+  program_id INT REFERENCES programs(program_id),
+  completed_credits INT,
+  level VARCHAR(20),
+  status VARCHAR(20)
+);
+
+
+CREATE TABLE program_courses (
+  id SERIAL PRIMARY KEY,
+  program_id INT REFERENCES programs(program_id),
+  course_code VARCHAR(20) REFERENCES courses(course_code),
+  type VARCHAR(50), 
+  prereq_codes TEXT 
+);
+
+
+CREATE TABLE student_courses (
+  id SERIAL PRIMARY KEY,
+  student_id INT REFERENCES students(student_id),
+  course_code VARCHAR(20) REFERENCES courses(course_code),
+  grade_symbol VARCHAR(2),  
+  grade_value NUMERIC(4,2), 
+  status VARCHAR(20),       
+  semester VARCHAR(20)      
+);
+
+
+CREATE TABLE votes (
+  vote_id SERIAL PRIMARY KEY,
+  student_id INT REFERENCES students(student_id),
+  course_code VARCHAR(20) REFERENCES courses(course_code),
+  vote_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+COPY student_courses(student_id, course_code, grade_symbol, grade_value, status, semester)
+FROM 'C:\\Program Files\\PostgreSQL\\18\\data\\database\\student_courses.csv'
+DELIMITER ';'
+CSV HEADER;
+
+
+COPY votes(student_id, course_code, vote_value)
+FROM 'C:\\Program Files\\PostgreSQL\\18\\data\\database\\votes.csv'
+DELIMITER ';'
+CSV HEADER;
+

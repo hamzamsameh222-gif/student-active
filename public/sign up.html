@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: #f0f4f8;
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 10px;
+  }
+
+  .login-container {
+    background-color: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 1100px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media (min-width: 768px) {
+    .login-container {
+      flex-direction: row;
+    }
+  }
+
+  .left-section {
+    width: 100%;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  @media (min-width: 768px) {
+    .left-section {
+      width: 50%;
+      padding: 48px;
+    }
+  }
+
+  .form-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #556B2F;
+    margin-left: 8px;
+  }
+
+  .description {
+    color: #555;
+    margin-top: 8px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #444;
+  }
+
+  input[type="email"],
+  input[type="text"] {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    outline: none;
+  }
+
+  .checkbox-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 16px 0;
+  }
+
+  .checkbox-group input {
+    margin-right: 6px;
+  }
+
+  .checkbox-group label {
+    font-size: 14px;
+    color: #555;
+  }
+
+  .checkbox-group a {
+    color: #556B2F;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .checkbox-group a:hover {
+    color: #708238;
+  }
+
+  .btn-login {
+    background-color: #556B2F;
+    color: white;
+    border: none;
+    padding: 14px;
+    width: 100%;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+  .btn-login:hover {
+    background-color: #445922;
+  }
+
+  .signup-text {
+    text-align: center;
+    font-size: 14px;
+    color: #777;
+    margin-top: 16px;
+  }
+
+  .signup-text a {
+    color: #556B2F;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .signup-text a:hover {
+    color: #708238;
+  }
+
+  /* Right Graphic Section */
+  .right-section {
+    background: linear-gradient(135deg, #4a5d28, #556B2F);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 32px;
+  }
+
+  @media (min-width: 768px) {
+    .right-section {
+      width: 50%;
+      padding: 48px;
+    }
+  }
+
+  .right-section h2 {
+    font-size: 20px;
+    color: white;
+    margin-top: 16px;
+  }
+
+  .right-section p {
+    color: rgba(255,255,255,0.8);
+    margin-top: 8px;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  /* Optional: SVG Animation */
+  .float-animation {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0); }
+  }
+
+  .form-group {
+    margin-bottom: 10px;
+  }
+  p{
+    margin-bottom: 15px;
+  }
+
+  input[type="email"],
+  input[type="text"] {
+    padding: 10px;
+    margin-top: 6px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .checkbox-group {
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+
+  .btn-login {
+    background: linear-gradient(to right, #556B2F, #708238);
+    border: none;
+    padding: 12px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  /* تحكم بالقسم اليسار */
+  .left-section {
+    padding: 48px 32px;
+  }
+
+  /* تحسين عام */
+  .login-container {
+    max-width: 1100px;
+    margin: auto;
+    display: flex;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .logo-text{
+    display: flex;
+    align-items: center; /* يخليهم بنفس الخط العمودي */
+    margin-bottom: 15px;  /* مسافة تحت العنوان */
+
+  }
+
+  .flex-items-center{
+
+    display: flex;
+    align-items: center;
+  }
+
+  .forget{
+    margin-top: 4px;
+  }
+
+  .form-row {
+  display: flex;
+  gap: 20px; /* المسافة بين الحقول */
+  flex-wrap: wrap;
+}
+
+.form-group {
+  flex: 1; /* يخلي كل حقل ياخذ نفس العرض */
+  min-width: 150px;
+}
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+  }
+}
+
+.input-field {
+  border: px solid #d1d5db; /* رمادي فاتح */
+  background-color: #f9fafb;
+  color: #111827;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+/* لما المستخدم يضغط */
+.input-field:focus {
+  border-color: #556B2F;
+  box-shadow: 0 0 0 2px rgba(85, 107, 47, 0.2);
+  background-color: #fff;
+}
+
+/* للسيلكت RTL */
+.ltr-select {
+  direction: ltr;
+  text-align: right;
+  padding-left: 2.5rem; /* عشان يبعد عن السهم */
+}
+
+/* لمن ما يختار شي */
+select:invalid {
+  color: #9ca3af;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.form-row .form-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9fafb;
+  color: #111827;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #374151;
+}
+
+
+
+</style>
+
+
+</head>
+<body>
+    
+
+<div class="container">
+  <div class="form-wrapper">
+    <button id="langToggle" onclick="toggleLanguage()" style="position: absolute; top: 20px; right: 20px; padding: 8px 16px; border-radius: 8px; background-color: #556B2F; color: white; cursor: pointer;">
+  AR
+</button>
+
+    <div class="login-container bg-white rounded-xl overflow-hidden w-full max-w-5xl flex flex-col md:flex-row">
+      <!-- Login Form Section -->
+        <div class="left-section">
+            <div class="mb-8">
+                <div class="flex items-center mb-2">
+                    <!-- Improved Logo -->
+                    <div class="logo-text">
+                    <svg width="40" height="40" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="25" cy="25" r="23" fill="#556B2F"></circle>
+                        <circle cx="25" cy="25" r="19" fill="white"></circle>
+                        <circle cx="25" cy="25" r="15" fill="#556B2F"></circle>
+                        
+                        <!-- Graduation Cap -->
+                        <path d="M25 10L40 18L25 26L10 18L25 10Z" fill="white"></path>
+                        <path d="M18 20.5V28C18 31.3137 21.134 34 25 34C28.866 34 32 31.3137 32 28V20.5" stroke="white" stroke-width="2"></path>
+                        <rect x="24" y="10" width="2" height="6" fill="#556B2F"></rect>
+                        
+                        <!-- Checkmark -->
+                        <path d="M20 25L24 29L32 21" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <h1  data-en="Student Vote" data-ar="نظام التصويت الطلابي " style="font-size: 24px; font-weight: bold; color: #556B2F; margin-bottom: 8px; margin-left: 5px; margin-top: 7px;">Student Vote</h1>
+                    </div>
+                </div>
+                <h1 data-en="create new acount!" data-ar="انشاء حساب جديد!" style="margin-bottom: 5px;">create new acount !</h1>
+                <p  data-en="sign up by your information student" data-ar="سجل الدخول باستخدام معلوماتك الجامعبة  " style="color: #666;">sign up by your information student </p>
+            </div>
+            
+            <form class="space-y-6">
+                
+            <div class="form-row">
+                <div class="form-group">
+                    <label data-en="First Name" data-ar="الاسم الاول" for="email" class="block text-sm font-medium text-gray-700 mb-1" >First Name</label>
+                    <input  type="text" id="text" class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="Enter first name" required="" 
+                    style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; transition: 0.3s ease;"
+                     onmouseover="this.style.borderColor='#556B2F'" 
+                     onmouseout="this.style.borderColor='#ccc'">
+                </div>
+                <div class="form-group">
+                    <label data-en="Last Name" data-ar="الاسم الاخير" for="name" class="block text-sm font-medium text-gray-700 mb-1" >Last Name</label>
+                    <input  type="text" id="text" class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="Enter Last name" required="" 
+                    style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; transition: 0.3s ease;"
+                     onmouseover="this.style.borderColor='#556B2F'" 
+                     onmouseout="this.style.borderColor='#ccc'">
+                </div>
+            </div>
+           
+           
+           
+           
+           
+           
+           
+           
+            <div class="form-group">    
+                <div>
+                    <label  data-en="Number Student" data-ar="الرقم الجامعي" for="number student" class="block text-sm font-medium text-gray-700 mb-1">Number Student</label>
+                    <input type="text" id="password" class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="Enter your Number" required=""
+                    style="padding: 10px; border: 1px solid #ccc; border-radius: 8px; transition: 0.3s ease;"
+                    onmouseover="this.style.borderColor='#556B2F'" 
+                    onmouseout="this.style.borderColor='#ccc'">
+                </div>
+                
+            </div>
+
+            <div class="form-group">    
+                <div>
+                    <label  data-en="Number your phone" data-ar="رقم الهاتف" for="Number your phone" class="block text-sm font-medium text-gray-700 mb-1">Number your phone</label>
+                    <input type="text" id="password" class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="Enter your phone" required=""
+                    style="padding: 10px; border: 1px solid #ccc; border-radius: 8px; transition: 0.3s ease;"
+                    onmouseover="this.style.borderColor='#556B2F'" 
+                    onmouseout="this.style.borderColor='#ccc'">
+                </div>
+            </div>
+
+            <div class="form-group">    
+                <div>
+                    <label  data-en="Email" data-ar="البريد الالكتروني" for="Email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="text" id="password" class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="Enter your Email" required=""
+                    style="padding: 10px; border: 1px solid #ccc; border-radius: 8px; transition: 0.3s ease;"
+                    onmouseover="this.style.borderColor='#556B2F'" 
+                    onmouseout="this.style.borderColor='#ccc'">
+                </div>
+            </div>
+
+            <div class="form-group">    
+                <div>
+                    <label  data-en="Email" data-ar="البريد الالكتروني" for="Email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="text" id="password" class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="Enter your Email" required=""
+                    style="padding: 10px; border: 1px solid #ccc; border-radius: 8px; transition: 0.3s ease;"
+                    onmouseover="this.style.borderColor='#556B2F'" 
+                    onmouseout="this.style.borderColor='#ccc'">
+                </div>
+            </div>
+
+
+
+
+          <div class="form-row">
+          <div class="form-group">
+    
+              <div>
+                    <label  data-en="password" data-ar="كلمة المرور" for="pass" class="block text-sm font-medium text-gray-700 mb-1">password</label>
+                    <input type="password" id="password" class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="Enter your password" required=""
+                    style="padding: 10px; border: 1px solid #ccc; border-radius: 8px; transition: 0.3s ease;"
+                    onmouseover="this.style.borderColor='#556B2F'" 
+                    onmouseout="this.style.borderColor='#ccc'">
+                </div>
+  </div>
+
+  <div class="form-group">
+    
+              <div>
+                    <label  data-en=" Rewrite password" data-ar="أعد كتابة كلمة المرور   " for="pass" class="block text-sm font-medium text-gray-700 mb-1">Rewrite password</label>
+                    <input type="password" id="password" class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="Enter your password" required=""
+                    style="padding: 10px; border: 1px solid #ccc; border-radius: 8px; transition: 0.3s ease;"
+                    onmouseover="this.style.borderColor='#556B2F'" 
+                    onmouseout="this.style.borderColor='#ccc'">
+                </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <!-- College -->
+  <div class="form-row">
+  <div class="form-group">
+    <label data-en="college " data-ar="الكلية " for="faculty">College</label>
+    <select id="faculty" required>
+      <option value="" disabled selected>select your college</option>
+      <option value="engineering">Engineering</option>
+      <option value="science">Science</option>
+      <option value="business">Business</option>
+      <option value="arts">Arts</option>
+      <option value="medicine">Medicine</option>
+      <option value="law">Law</option>
+      <option value="other">Other</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label data-en="Study Year" data-ar="السنة الدراسية " for="year">Study Year</label>
+    <select id="year" required>
+      <option value="" disabled selected>Select your year</option>
+      <option value="1">First Year</option>
+      <option value="2">Second Year</option>
+      <option value="3">Third Year</option>
+      <option value="4">Fourth Year</option>
+      <option value="5">Fifth Year</option>
+    </select>
+  </div>
+</div>
+
+            <button data-en="Continue" data-ar="التالي  " type="button" class="btn-login olive-gradient w-full py-3 px-4 rounded-lg text-white font-medium"
+                style=" cursor: pointer; transition: 0.3s;margin-top: 20px;">Continue</button>
+                
+                <div class="text-center text-sm text-gray-600">
+                   Are have an account? <a href="#" class="font-medium text-[#556B2F] hover:text-[#708238]" style="color: #556B2F;">Sign in</a>
+                </div>
+            </form>
+        </div>
+      </div>
+        <!-- Graphic Section -->
+       <div class="right-section">
+            <div class="text-center">
+              <!-- Large Logo/Illustration -->
+              <div class="float-animation">
+                    <svg class="w-64 h-64 mx-auto logo-pulse" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Background Circle -->
+                        <circle cx="120" cy="120" r="110" fill="#4a5d28" opacity="0.2"></circle>
+                        
+                        <!-- Main Logo Circle -->
+                        <circle cx="120" cy="120" r="80" fill="white" opacity="0.95"></circle>
+                        <circle cx="120" cy="120" r="70" fill="#556B2F" opacity="0.9"></circle>
+                        
+                        <!-- Graduation Cap -->
+                        <path d="M120 60L180 90L120 120L60 90L120 60Z" fill="white"></path>
+                        <path d="M90 97V125C90 135 103 145 120 145C137 145 150 135 150 125V97" stroke="white" stroke-width="4"></path>
+                        <rect x="118" y="60" width="4" height="15" fill="#556B2F"></rect>
+                        
+                        <!-- Ballot Box -->
+                        <rect x="95" y="130" width="50" height="40" rx="3" fill="white" opacity="0.95" stroke="#556B2F" stroke-width="2"></rect>
+                        <rect x="105" y="130" width="30" height="5" rx="1" fill="#556B2F"></rect>
+                        
+                        <!-- Ballot Paper -->
+                        <rect x="110" y="115" width="20" height="25" fill="white" opacity="0.95" stroke="#556B2F" stroke-width="1"></rect>
+                        <line x1="115" y1="120" x2="125" y2="120" stroke="#556B2F" stroke-width="1"></line>
+                        <line x1="115" y1="125" x2="125" y2="125" stroke="#556B2F" stroke-width="1"></line>
+                        <line x1="115" y1="130" x2="125" y2="130" stroke="#556B2F" stroke-width="1"></line>
+                        
+                        <!-- Checkmark -->
+                        <path d="M100 110L115 125L140 100" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+                        
+                        <!-- Decorative Elements -->
+                        <circle cx="70" cy="70" r="8" fill="white" opacity="0.6"></circle>
+                        <circle cx="170" cy="70" r="8" fill="white" opacity="0.6"></circle>
+                        <circle cx="70" cy="170" r="8" fill="white" opacity="0.6"></circle>
+                        <circle cx="170" cy="170" r="8" fill="white" opacity="0.6"></circle>
+                        
+                        <!-- Stars -->
+                        <path d="M50 120L53 126L60 127L55 132L56 139L50 136L44 139L45 132L40 127L47 126L50 120Z" fill="white" opacity="0.7"></path>
+                        <path d="M190 120L193 126L200 127L195 132L196 139L190 136L184 139L185 132L180 127L187 126L190 120Z" fill="white" opacity="0.7"></path>
+                        <path d="M120 40L122 46L129 47L124 52L125 59L120 56L115 59L116 52L111 47L118 46L120 40Z" fill="white" opacity="0.7"></path>
+                        <path d="M120 180L122 186L129 187L124 192L125 199L120 196L115 199L116 192L111 187L118 186L120 180Z" fill="white" opacity="0.7"></path>
+                    </svg>
+                </div>
+                
+                <h2 data-en="Join Student Vote" data-ar=" انظم الى تصويت الطلاب"  class="text-white text-2xl font-bold mt-4">Join Student Vote</h2>
+                <p data-en="create your account to start voting for coureses and shaping your academic future" data-ar="انشئ حسابك لبدء التصويت على المقررات الدراسية وتشكيل مستقبلك الاكاديمي" class="text-white/80 mt-2 max-w-xs mx-auto">create your account to start voting for coureses and shaping your academic future</p>
+            </div>
+        </div>
+    </div>
+  </div>
+
+ <script>
+  let currentLang = 'en';
+
+  function toggleLanguage() {
+    const htmlTag = document.documentElement;
+    const texts = document.querySelectorAll('[data-en][data-ar]');
+    const langBtn = document.getElementById('langToggle');
+
+    if (currentLang === 'en') {
+      htmlTag.setAttribute('dir', 'rtl');
+      htmlTag.setAttribute('lang', 'ar');
+      currentLang = 'ar';
+      langBtn.textContent = 'EN';
+      texts.forEach(el => el.textContent = el.getAttribute('data-ar'));
+    } else {
+      htmlTag.setAttribute('dir', 'ltr');
+      htmlTag.setAttribute('lang', 'en');
+      currentLang = 'en';
+      langBtn.textContent = 'AR';
+      texts.forEach(el => el.textContent = el.getAttribute('data-en'));
+    }
+  }
+</script>
+</body>
+
+</html>
