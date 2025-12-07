@@ -319,3 +319,29 @@ app.delete('/delvote/:id', async (req, res) => {
 
 
 
+
+const express = require("express");
+const path = require("path");
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// علشان يخلي كل ملفات public شغالة (HTML, CSS, JS)
+app.use(express.static(path.join(__dirname, "public")));
+
+// افتح صفحة index.html لما يروح المستخدم على الرابط الرئيسي
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// أي صفحة بدك تعمل إلها رابط، بس اعمل route بسيط
+app.get("/:page", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", `${req.params.page}.html`));
+});
+
+// شغل السيرفر
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
+
+
